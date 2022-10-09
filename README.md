@@ -26,6 +26,7 @@ spec:
 $ k get vcws sample1 
 NAME      STORAGECLASSNAME   VOLUMESIZE   RESOURCES                                                                     AGE
 sample1   nfs-volumes        100Mi        {"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"1","memory":"1Gi"}}   29m
+
 $ k get vcws sample1 -o yaml
 apiVersion: davidp1404.github.com/v1
 kind: vcodeWorkspace
