@@ -29,7 +29,7 @@ sample1   nfs-volumes        100Mi        {"limits":{"cpu":"1","memory":"1Gi"},"
 
 ```
 
-As a result and instance of microsoft/vscode will become available at address https://<your_ingress_fqdn>/\<namespace>/\<name>/
+As a result and instance of microsoft/vscode will become available at address **https://<your_ingress_fqdn>/\<namespace>/\<name>/**
 
 ![Screenshot](/vscode-screenshot.png)
   
@@ -61,10 +61,11 @@ $ make uninstall-qasamples
 ## Status:
 Maturity: early beta   
 Limitations:
-- [ ] We currently don't manage pvc resize
+- [ ] WIP to manage pvc changes
 
 
 ## To-Do:
+- [x] Based on jinja2 templates you can easily adapt to your particularities
 - [x] Makefile to create docker images and install
 - [x] Operator with multiple replicas 
 - [x] Package with kustomize
