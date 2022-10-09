@@ -1,5 +1,5 @@
 # vcode-operator
-Kubernetes  operator based on [microsoft/vscode](https://github.com/Microsoft/vscode)and developed with python3 using [kubernetes](https://github.com/kubernetes-client/python) and [kopf](https://kopf.readthedocs.io/en/stable/) libraries.     
+Kubernetes  operator based on [microsoft/vscode](https://github.com/Microsoft/vscode) and developed with python3 using [kubernetes](https://github.com/kubernetes-client/python) and [kopf](https://kopf.readthedocs.io/en/stable/) libraries.     
 
 ## What it does?
 It gives you a declarative way to deploy instances of vscode on-the-web automating the creation of related native objects:
