@@ -2,7 +2,7 @@
 Kubernetes  operator based on [microsoft/vscode](https://github.com/Microsoft/vscode)and developed with python3 using [kubernetes](https://github.com/kubernetes-client/python) and [kopf](https://kopf.readthedocs.io/en/stable/) libraries.     
 
 ## What it does?
-It gives you a declarative way to deploy individual instances of vscode automating the creation of related native objects:
+It gives you a declarative way to deploy instances of vscode on-the-web automating the creation of related native objects:
 - Deployment
 - Service
 - Ingresses
@@ -32,6 +32,11 @@ sample1   nfs-volumes        100Mi        {"limits":{"cpu":"1","memory":"1Gi"},"
 As a result and instance of microsoft/vscode will become available at address https://<your_ingress_fqdn>/<namespace>/<name>/
 
 ![Screenshot](/vscode-screenshot.png)
+  
+## What problems does it solve?
+- Allow developing of apps from inside the k8s instance, solving issues that port-forward doesn't usually solve well (like connect to kafka brokers or any distributted component).
+- Restrict access to sensible code avoiding copies outside your control.
+
 
 ## Installation:
 ```
