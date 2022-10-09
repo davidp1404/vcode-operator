@@ -26,6 +26,26 @@ spec:
 $ k get vcws sample1 
 NAME      STORAGECLASSNAME   VOLUMESIZE   RESOURCES                                                                     AGE
 sample1   nfs-volumes        100Mi        {"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"1","memory":"1Gi"}}   29m
+$ k get vcws sample1 -o yaml
+apiVersion: davidp1404.github.com/v1
+kind: vcodeWorkspace
+metadata:
+  name: sample1
+  namespace: default
+spec:
+  image: codercom/code-server
+  ingress-class: nginx
+  ingress-host: ""
+  password: "1234"
+  resources:
+    limits:
+      cpu: "1"
+      memory: 1Gi
+    requests:
+      cpu: "1"
+      memory: 1Gi
+  storageClassName: nfs-volumes
+  volumeSize: 100Mi
 
 ```
 
