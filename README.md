@@ -14,6 +14,7 @@ apiVersion: davidp1404.github.com/v1
 kind: vcodeWorkspace
 metadata:
   name: sample1
+  namespace: default
 spec:
   volumeSize: "100Mi"
   storageClassName: "nfs-volumes"
@@ -27,6 +28,10 @@ NAME      STORAGECLASSNAME   VOLUMESIZE   RESOURCES                             
 sample1   nfs-volumes        100Mi        {"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"1","memory":"1Gi"}}   29m
 
 ```
+
+As a result and instance of microsoft/vscode will become available at address https://<your_ingress_fqdn>/<namespace>/<name>/
+
+![Screenshot](/vscode-screenshot.png)
 
 ## Installation:
 ```
