@@ -29,7 +29,7 @@ sample1   nfs-volumes        100Mi        {"limits":{"cpu":"1","memory":"1Gi"},"
 
 ```
 
-As a result and instance of microsoft/vscode will become available at address https://<your_ingress_fqdn>/<namespace>/<name>/
+As a result and instance of microsoft/vscode will become available at address https://<your_ingress_fqdn>/\<namespace>/\<name>/
 
 ![Screenshot](/vscode-screenshot.png)
   
