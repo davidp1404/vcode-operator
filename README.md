@@ -90,4 +90,5 @@ Limitations:
 - [x] Makefile to create docker images and install
 - [x] Operator with multiple replicas 
 - [x] Package with kustomize
+- [ ] Replace password for something better like oidc2 auth
 
