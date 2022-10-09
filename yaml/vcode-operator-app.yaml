@@ -1,0 +1,67 @@
+apiVersion: v1
+data:
+  vcode-operator.py: "import kopf, logging, random\nimport asyncio,os,yaml,logging\nfrom
+    kubernetes import client, config\nfrom kubernetes.client.rest import ApiException\nfrom
+    jinja2 import Environment, FileSystemLoader\n\n\ndef genDeployment(name,namespace,spec):\n
+    \ file_path = os.path.dirname(os.path.realpath(__file__)) + \"/templates\"\n  environment
+    = Environment(loader=FileSystemLoader(file_path))\n  template = environment.get_template(\"deployment.j2\")\n
+    \ body = template.render(\n    name=name.replace('.','-'),\n    namespace=namespace,\n
+    \   image=str(spec.get('image')),\n    password=str(spec.get('password')),\n    requests=spec.get('resources')['requests'],\n
+    \   limits=spec.get('resources')['limits']\n    )\n  return(yaml.safe_load(body))
+    \ \n\ndef genPVC(name,namespace,spec):\n  file_path = os.path.dirname(os.path.realpath(__file__))
+    + \"/templates\"\n  environment = Environment(loader=FileSystemLoader(file_path))\n
+    \ template = environment.get_template(\"pvc.j2\")\n  body = template.render(\n
+    \   name=name.replace('.','-'),\n    namespace=namespace,\n    volumeSize=str(spec.get('volumeSize')),\n
+    \   storageClassName=str(spec.get('storageClassName'))\n    )\n  return(yaml.safe_load(body))
+    \ \n\ndef genService(name,namespace,spec):\n  file_path = os.path.dirname(os.path.realpath(__file__))
+    + \"/templates\"\n  environment = Environment(loader=FileSystemLoader(file_path))\n
+    \ template = environment.get_template(\"service.j2\")\n  body = template.render(\n
+    \   name=name.replace('.','-'),\n    namespace=namespace,\n    )\n  return(yaml.safe_load(body))
+    \ \n\ndef genIngress(name,namespace,spec):\n  file_path = os.path.dirname(os.path.realpath(__file__))
+    + \"/templates\"\n  environment = Environment(loader=FileSystemLoader(file_path))\n
+    \ template = environment.get_template(\"ingress.j2\")\n  body = template.render(\n
+    \   name=name.replace('.','-'),\n    namespace=namespace,\n    ingressclass=str(spec.get('ingress-class')),\n
+    \   ingresshost=str(spec.get('ingress-host'))\n    )\n  return(yaml.safe_load(body))
+    \n\n#https://kopf.readthedocs.io/en/stable/peering/?highlight=wait#multi-pod-operators\n@kopf.on.startup()\ndef
+    configure(settings: kopf.OperatorSettings, **_):\n    settings.peering.priority
+    = random.randint(0, 32767) \n    settings.peering.stealth = True\n    settings.peering.standalone
+    = False\n    settings.posting.level = logging.INFO\n\n@kopf.on.create('vcodeworkspaces')\nasync
+    def create_vcodeworkspaces(spec, name, namespace, logger, **kwargs):\n  deployment
+    = genDeployment(name,namespace,spec)\n  pvc = genPVC(name,namespace,spec)\n  service
+    = genService(name,namespace,spec)\n  ingress = genIngress(name,namespace,spec)\n
+    \ try:\n      v1_core = client.CoreV1Api()\n      v1_apps = client.AppsV1Api()\n
+    \     v1_networking = client.NetworkingV1Api()\n      # Make unnecesary to manage
+    deletion\n      kopf.adopt(deployment)\n      kopf.adopt(pvc)\n      kopf.adopt(service)\n
+    \     kopf.adopt(ingress)\n      v1_apps.create_namespaced_deployment(namespace,deployment,pretty='true')\n
+    \     v1_core.create_namespaced_persistent_volume_claim(namespace,pvc,pretty='true')\n
+    \     v1_core.create_namespaced_service(namespace,service,pretty='true')\n      v1_networking.create_namespaced_ingress(namespace,ingress,pretty='true')\n
+    \     await asyncio.sleep(2.0)\n  except ApiException as e:\n      e=str(e).replace('\\n','\\\\n')\n
+    \     error_msg=f'{{\"error\": {e}}}'\n      logger.error(\"Exception when calling
+    create_vcodeworkspaces: %s\\n\" % error_msg)\n\n\n@kopf.on.update('vcodeworkspaces')\nasync
+    def update_vcodeworkspaces(spec, old, new, name, namespace, logger, diff, **_):\n
+    \ changed_deployment = bool([item for item in diff if item[1][1] == 'resources'])
+    or bool([item for item in diff if item[1][1] == 'image']) or bool([item for item
+    in diff if item[1][1] == 'password']) \n  changed_pvc = bool([item for item in
+    diff if item[1][1] == 'volumeSize']) or bool([item for item in diff if item[1][1]
+    == 'storageClassName'])\n  changed_ingress = bool([item for item in diff if item[1][1]
+    == 'ingress-host']) or bool([item for item in diff if item[1][1] == 'ingress-class'])\n
+    \ res_name=f\"vcode-operator-{name}\".replace('.','-')\n  try:\n      if changed_ingress:\n
+    \       ingress = genIngress(name,namespace,spec)\n        v1_networking = client.NetworkingV1Api()\n
+    \       kopf.adopt(ingress)\n        v1_networking.replace_namespaced_ingress(res_name,namespace,ingress,pretty='true')\n
+    \       logger.info(\"Updating ingress\")\n      if changed_pvc:\n        pvc
+    = genPVC(name,namespace,spec)\n        v1_core = client.CoreV1Api()\n        kopf.adopt(pvc)\n
+    \       if bool([item for item in diff if item[1][1] == 'volumeSize']):\n          #
+    Patch pvc size\n          pass\n        else:\n          # Delete and create pvc\n
+    \         changed_deployment=True  # To recreate home files\n          pass\n
+    \       logger.info(\"Updating pvc\")\n      if changed_deployment:\n        deployment
+    = genDeployment(name,namespace,spec)\n        v1_apps = client.AppsV1Api()\n        kopf.adopt(deployment)\n
+    \       v1_apps.replace_namespaced_deployment(res_name,namespace,deployment,pretty='true')\n
+    \       logger.info(\"Updating deployment\")\n      await asyncio.sleep(2.0)\n
+    \ except ApiException as e:\n      e=str(e).replace('\\n','\\\\n')\n      error_msg=f'{{\"error\":
+    {e}}}'\n      logger.error(\"Exception when calling update_vcodeworkspaces: %s\\n\"
+    % error_msg)\n\n#config.load_kube_config()  # for local environment\n#config.load_incluster_config()
+    \ "
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: vcode-operator-app

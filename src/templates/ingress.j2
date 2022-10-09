@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vcode-operator-{{name}}
+  namespace:  {{namespace}}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/use-regex: "true"
+  labels:
+    app: vcode-operator-{{name}}
+    app.kubernetes.io/managed-by: "vcode-operator"
+spec:
+  ingressClassName: {{ingressclass}}
+  rules:
+  - host: {% if ingresshost|length %} {{ingresshost}} {% endif %}
+    http:
+      paths:
+      - path: /{{namespace}}/{{name}}/(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: vcode-operator-{{name}}
+            port:
+              number: 80

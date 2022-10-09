@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vcode-operator
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vcode-operator
+  template:
+    metadata:
+      labels:
+        app: vcode-operator
+    spec:
+      serviceAccountName: vcode-operator-sa
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: main
+        image: davidp1404/vcode-operator
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: 1000 
+        resources:
+          requests:
+            cpu: 250m
+            memory: 250Mi
+          limits:
+            cpu: 250m
+            memory: 250Mi
+        volumeMounts:
+        - name: app
+          mountPath: /app/vcode-operator.py
+          subPath: vcode-operator.py
+        - name: templates
+          mountPath: /app/templates
+      volumes:
+      - name: app
+        configMap:
+          name: vcode-operator-app     
+      - name: templates
+        configMap:
+          name: vcode-operator-templates

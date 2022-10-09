@@ -1,0 +1,12 @@
+---
+apiVersion: davidp1404.github.com/v1
+kind: vcodeWorkspace
+metadata:
+  name: sample1
+spec:
+  volumeSize: "100Mi"
+  storageClassName: "nfs-volumes"
+  resources:
+    requests:
+      cpu: "1"
+  password: "1234"

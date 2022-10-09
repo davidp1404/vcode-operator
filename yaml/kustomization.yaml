@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: vcode-operator
+resources:
+- namespace.yaml
+- vcode-operator-sa.yaml
+- rbac.yaml
+- vcode-operator-templates.yaml
+- vcode-operator-app.yaml
+- vcode-operator-deployment.yaml
