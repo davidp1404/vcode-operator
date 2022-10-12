@@ -37,9 +37,11 @@ spec:
           requests:
             cpu: {{requests['cpu']}}
             memory: {{requests['memory']}}
+          {% if limits.cpu or limits.memory %}
           limits:
-            cpu: {{limits['cpu']}}
-            memory: {{limits['memory']}}
+            {% if limits.cpu %}cpu: {{limits['cpu']}}{% endif %}
+            {% if limits.memory %}memory: {{limits['memory']}}{% endif %}
+          {% endif %}
         livenessProbe:
           failureThreshold: 5
           httpGet:

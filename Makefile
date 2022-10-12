@@ -32,3 +32,6 @@ install-qasamples:
 
 uninstall-qasamples:
 	-cat qa/sample*.yaml | kubectl -n default delete -f -
+
+operator-logs:
+	-kubectl -n ${NAMESPACE} logs -fl app=vcode-operator

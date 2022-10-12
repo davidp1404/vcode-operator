@@ -5,24 +5,25 @@ data:
     jinja2 import Environment, FileSystemLoader\n\n\ndef genDeployment(name,namespace,spec):\n
     \ file_path = os.path.dirname(os.path.realpath(__file__)) + \"/templates\"\n  environment
     = Environment(loader=FileSystemLoader(file_path))\n  template = environment.get_template(\"deployment.j2\")\n
+    \ resources = spec.get('resources')\n  if 'limits' not in resources.keys():\n
+    \   limits={}\n  else:\n    limits=spec.get('resources')['limits']\n  body = template.render(\n
+    \   name=name.replace('.','-'),\n    namespace=namespace,\n    image=str(spec.get('image')),\n
+    \   password=str(spec.get('password')),\n    requests=spec.get('resources')['requests'],\n
+    \   limits=limits\n    )\n  return(yaml.safe_load(body))  \n\ndef genPVC(name,namespace,spec):\n
+    \ file_path = os.path.dirname(os.path.realpath(__file__)) + \"/templates\"\n  environment
+    = Environment(loader=FileSystemLoader(file_path))\n  template = environment.get_template(\"pvc.j2\")\n
     \ body = template.render(\n    name=name.replace('.','-'),\n    namespace=namespace,\n
-    \   image=str(spec.get('image')),\n    password=str(spec.get('password')),\n    requests=spec.get('resources')['requests'],\n
-    \   limits=spec.get('resources')['limits']\n    )\n  return(yaml.safe_load(body))
-    \ \n\ndef genPVC(name,namespace,spec):\n  file_path = os.path.dirname(os.path.realpath(__file__))
-    + \"/templates\"\n  environment = Environment(loader=FileSystemLoader(file_path))\n
-    \ template = environment.get_template(\"pvc.j2\")\n  body = template.render(\n
-    \   name=name.replace('.','-'),\n    namespace=namespace,\n    volumeSize=str(spec.get('volumeSize')),\n
-    \   storageClassName=str(spec.get('storageClassName'))\n    )\n  return(yaml.safe_load(body))
-    \ \n\ndef genService(name,namespace,spec):\n  file_path = os.path.dirname(os.path.realpath(__file__))
-    + \"/templates\"\n  environment = Environment(loader=FileSystemLoader(file_path))\n
-    \ template = environment.get_template(\"service.j2\")\n  body = template.render(\n
-    \   name=name.replace('.','-'),\n    namespace=namespace,\n    )\n  return(yaml.safe_load(body))
-    \ \n\ndef genIngress(name,namespace,spec):\n  file_path = os.path.dirname(os.path.realpath(__file__))
-    + \"/templates\"\n  environment = Environment(loader=FileSystemLoader(file_path))\n
-    \ template = environment.get_template(\"ingress.j2\")\n  body = template.render(\n
-    \   name=name.replace('.','-'),\n    namespace=namespace,\n    ingressclass=str(spec.get('ingress-class')),\n
-    \   ingresshost=str(spec.get('ingress-host'))\n    )\n  return(yaml.safe_load(body))
-    \n\n#https://kopf.readthedocs.io/en/stable/peering/?highlight=wait#multi-pod-operators\n@kopf.on.startup()\ndef
+    \   volumeSize=str(spec.get('volumeSize')),\n    storageClassName=str(spec.get('storageClassName'))\n
+    \   )\n  return(yaml.safe_load(body))  \n\ndef genService(name,namespace,spec):\n
+    \ file_path = os.path.dirname(os.path.realpath(__file__)) + \"/templates\"\n  environment
+    = Environment(loader=FileSystemLoader(file_path))\n  template = environment.get_template(\"service.j2\")\n
+    \ body = template.render(\n    name=name.replace('.','-'),\n    namespace=namespace,\n
+    \   )\n  return(yaml.safe_load(body))  \n\ndef genIngress(name,namespace,spec):\n
+    \ file_path = os.path.dirname(os.path.realpath(__file__)) + \"/templates\"\n  environment
+    = Environment(loader=FileSystemLoader(file_path))\n  template = environment.get_template(\"ingress.j2\")\n
+    \ body = template.render(\n    name=name.replace('.','-'),\n    namespace=namespace,\n
+    \   ingressclass=str(spec.get('ingress-class')),\n    ingresshost=str(spec.get('ingress-host'))\n
+    \   )\n  return(yaml.safe_load(body)) \n\n#https://kopf.readthedocs.io/en/stable/peering/?highlight=wait#multi-pod-operators\n@kopf.on.startup()\ndef
     configure(settings: kopf.OperatorSettings, **_):\n    settings.peering.priority
     = random.randint(0, 32767) \n    settings.peering.stealth = True\n    settings.peering.standalone
     = False\n    settings.posting.level = logging.INFO\n\n@kopf.on.create('vcodeworkspaces')\nasync

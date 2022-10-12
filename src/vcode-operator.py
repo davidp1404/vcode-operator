@@ -9,13 +9,18 @@ def genDeployment(name,namespace,spec):
   file_path = os.path.dirname(os.path.realpath(__file__)) + "/templates"
   environment = Environment(loader=FileSystemLoader(file_path))
   template = environment.get_template("deployment.j2")
+  resources = spec.get('resources')
+  if 'limits' not in resources.keys():
+    limits={}
+  else:
+    limits=spec.get('resources')['limits']
   body = template.render(
     name=name.replace('.','-'),
     namespace=namespace,
     image=str(spec.get('image')),
     password=str(spec.get('password')),
     requests=spec.get('resources')['requests'],
-    limits=spec.get('resources')['limits']
+    limits=limits
     )
   return(yaml.safe_load(body))  
 

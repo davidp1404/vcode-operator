@@ -40,10 +40,8 @@ spec:
                       properties:
                         cpu: 
                           type: string
-                          default: "1"
                         memory:
                           type: string
-                          default: "1Gi"                      
                 storageClassName:
                   type: string     
                 volumeSize:
@@ -68,10 +66,6 @@ spec:
               type: object
               x-kubernetes-preserve-unknown-fields: true
       additionalPrinterColumns:
-      # - name: path
-      #   type: string
-      #   description: URL/<path>
-      #   jsonPath: .spec.path
       - name: storageClassName
         type: string
         description: storageClassName
